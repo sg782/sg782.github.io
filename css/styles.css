@@ -1,0 +1,48 @@
+body {
+    background-color: rgba(228, 228, 228, 0.312);
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+#header{
+    width: 100%;
+    font-size: 25px;
+
+}
+
+#footer{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding-bottom: 5px;
+}
+
+/* .project-card{
+    text-decoration: none;
+    color: black;
+} */
+
+#content{
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+
+.project-card div{
+    background-color: white;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 7px; 
+    border: 1px solid rgba(128, 128, 128, 0.321);
+}
+
+.project-card div:hover{
+    background-color: rgba(216, 216, 216, 0.104);
+
+}
+
+.blank-anchor{
+    text-decoration: none;
+    color: black;
+}
+
