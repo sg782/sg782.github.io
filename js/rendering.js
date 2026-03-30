@@ -16,12 +16,13 @@ class Circle {
         this.v = 0;
         this.vTheta = Math.PI / 2;
 
-        this.g = 100;
-        this.dt = 0.01;
+        this.g = 30000;
+        this.dt = 0.001;
 
         this.mass = 10;
         this.r = 5;
-        this.restitution = 0.7;
+        this.restitution = 0.9;
+
         // assuming hollow disk
     }
 
@@ -70,18 +71,20 @@ class Circle {
 
 
         if(line.intersect(this.x, this.y, circle.r)){
-            this.vTheta = line.angle();
+            let perp = line.angle() - Math.PI / 4;
+            let distPerp = this.vTheta - perp;
+            this.vTheta = perp - distPerp + Math.PI / 2;
+            // this.v *= this.restitution; <- ball sticks to line
+            // console.log("ERE", this.v)
         }
 
-        let vy = this.v * Math.sin(this.vTheta);
-        let vx = this.v * Math.cos(this.vTheta);
 
         if(line.intersect(this.x, this.y, circle.r)){
             // vy = 0; //+= this.g * this.dt * Math.sin(this.vTheta);
             // vx += this.g * this.dt * Math.cos(this.vTheta);
 
             // does this make the assumption that the ball has stopped rotating?
-            this.v += (1/2) * this.g * Math.sin(this.vTheta) * this.dt;
+            // this.v += (1/2) * this.g * Math.sin(this.vTheta) * this.dt;
 
         }else{
             this.updateDirectionalV("y", this.g * this.dt, "update")
@@ -91,19 +94,25 @@ class Circle {
         }
 
         
-
-        if(this.x + this.v * Math.cos(this.vTheta) * this.dt + this.r <= canvas.width){
+        
+        if(this.x + this.v * Math.cos(this.vTheta) * this.dt + this.r <= canvas.width &&
+           this.x + this.v * Math.cos(this.vTheta) * this.dt + this.r >= 0){
         }else{
             this.updateDirectionalV('x',-1 * this.restitution,'multiply');
         }
 
-        if(this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r <= canvas.height){
+        if(this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r <= canvas.height &&
+           this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r >= 0){
         }else{
             this.updateDirectionalV('y',-1 * this.restitution,'multiply');
         }
 
         this.x += this.v * Math.cos(this.vTheta) * this.dt
         this.y += this.v * Math.sin(this.vTheta) * this.dt
+
+        if(canvas.width - this.x <= 50 && canvas.height - this.y <= 1.5*this.r){
+            alert("great job.!!!");
+        }
 
 
         
@@ -208,6 +217,39 @@ function renderBackgroundCanvas(){
     ctx.arc(itx_x,itx_y, 5, 0, 2 * Math.PI);
     ctx.closePath();
     ctx.fill();
+
+    drawGolfFlag(ctx);
+
+}
+
+function drawGolfFlag(ctx){
+    const w = canvas.width;
+    const h = canvas.height;
+
+        // draw golf green
+    let golfHeight = 5;
+    let golfWidth = 50;
+    drawPoly(ctx, [
+        [w,h-golfHeight],[w-golfWidth,h-golfHeight],[w-golfWidth,h],[w,h]
+    ], '#32CD32')
+
+    // draw flag pole
+    let flagPoleHeight = 40;
+    ctx.beginPath();
+    // ctx.fillStyle = 'black';
+    ctx.moveTo(w - golfWidth/3,h-golfHeight)
+    ctx.lineTo(w - golfWidth/3,h-flagPoleHeight-golfHeight);
+    ctx.closePath();
+    ctx.stroke();
+
+    // draw flag
+    let flagHeight = 10
+    let flagWidth = 10
+    drawPoly(ctx, [
+        [w - golfWidth/3 - 1, h-flagPoleHeight-golfHeight],// top of flag
+        [w - golfWidth/3 - 1, h-flagPoleHeight-golfHeight + flagHeight], // bottom of flag
+        [w - golfWidth/3 - flagWidth, h-flagPoleHeight-golfHeight + flagHeight/2] // left point
+    ], '#FF0000')
 
 }
 
