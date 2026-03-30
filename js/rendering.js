@@ -7,6 +7,10 @@ let ctx = canvas.getContext("2d");
 let itx_x = canvas.width * 0.9;
 let itx_y = canvas.height * 0.1;
 
+let frameNum = 0;
+let celebrationStarted = false;
+let displayEnterSign = false;
+
 class Circle {
     // should bounce
     constructor(x = null, y = null){
@@ -101,17 +105,26 @@ class Circle {
             this.updateDirectionalV('x',-1 * this.restitution,'multiply');
         }
 
-        if(this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r <= canvas.height &&
-           this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r >= 0){
+        if((this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r <= canvas.height &&
+           this.y + this.v * Math.sin(this.vTheta) * this.dt + this.r >= 0) ||
+           this.x + this.v * Math.cos(this.vTheta) * this.dt + this.r >= canvas.width - 50
+        ){
         }else{
+
+            // bounce if not on top of the golf thing
             this.updateDirectionalV('y',-1 * this.restitution,'multiply');
+            // let it fall through the golf thing 
+
         }
 
         this.x += this.v * Math.cos(this.vTheta) * this.dt
         this.y += this.v * Math.sin(this.vTheta) * this.dt
 
-        if(canvas.width - this.x <= 50 && canvas.height - this.y <= 1.5*this.r){
-            alert("great job.!!!");
+        if(canvas.width - this.x <= 50 && canvas.height - this.y <= 1.5*this.r && !celebrationStarted){
+            // if ball is in the green
+            celebrationStarted = true;
+            // need to make a better celebration
+            alert("Good work!!!");
         }
 
 
@@ -191,6 +204,8 @@ function physicsUpdate(){
 
 
 function renderBackgroundCanvas(){
+    frameNum +=1; 
+
     ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
     const w = canvas.width;
@@ -219,6 +234,51 @@ function renderBackgroundCanvas(){
     ctx.fill();
 
     drawGolfFlag(ctx);
+    if(displayEnterSign){
+        drawEnterSign(ctx);
+    }
+
+}
+
+function drawEnterSign(ctx){
+    const w = canvas.width;
+    const h = canvas.height;
+
+    let signWidth = 50;
+    let signHeight = 30;
+    let signNotch = 10;
+    let notchWidth = 30;
+    let rOffset = 10; // right offset
+    let bOffset = 65; // bottom offset
+    let arrowPointLen = 5
+
+    // return line
+    ctx.beginPath();
+    ctx.moveTo(w - rOffset - (signWidth - notchWidth) / 2, h - bOffset - signHeight + signNotch);
+    ctx.lineTo(w - rOffset - (signWidth - notchWidth) / 2, h - bOffset - (signHeight-signNotch)/2);
+    ctx.lineTo(w - rOffset - signWidth  + signNotch, h - bOffset - (signHeight-signNotch)/2);
+    
+    ctx.lineTo(w - rOffset - signWidth  + signNotch + arrowPointLen, h - bOffset - (signHeight-signNotch)/2 - arrowPointLen);
+    ctx.moveTo(w - rOffset - signWidth  + signNotch, h - bOffset - (signHeight-signNotch)/2);
+    ctx.lineTo(w - rOffset - signWidth  + signNotch + arrowPointLen, h - bOffset - (signHeight-signNotch)/2 + arrowPointLen);
+
+
+    // ctx.moveTo(w - rOffset - (signWidth - notchWidth) / 2, h - bOffset - signHeight/2 + signNotch);
+    // ctx.closePath();
+    ctx.stroke();
+
+    // enter shape
+    drawPoly(ctx, [
+        [w - signWidth - rOffset, h - bOffset],
+        [w - rOffset, h - bOffset],
+        [w - rOffset, h - bOffset - signHeight],
+        [w - rOffset - (signWidth - notchWidth), h - bOffset - signHeight],
+        [w - rOffset - (signWidth - notchWidth), h - bOffset - signHeight + signNotch],
+        [w - rOffset - signWidth, h - bOffset - signHeight + signNotch],
+        [w - signWidth - rOffset, h - bOffset],
+    ], null, null, fill=false)
+
+
 
 }
 
@@ -243,8 +303,10 @@ function drawGolfFlag(ctx){
     ctx.stroke();
 
     // draw flag
+    let alpha = 0.01;
     let flagHeight = 10
-    let flagWidth = 10
+    let flagWidth = 7 + 5 * Math.sin(frameNum * alpha) ** 2;
+
     drawPoly(ctx, [
         [w - golfWidth/3 - 1, h-flagPoleHeight-golfHeight],// top of flag
         [w - golfWidth/3 - 1, h-flagPoleHeight-golfHeight + flagHeight], // bottom of flag
@@ -254,7 +316,7 @@ function drawGolfFlag(ctx){
 }
 
 
-function drawPoly(ctx, points, color, offset=null){
+function drawPoly(ctx, points, color, offset=null, fill=true){
     let offset_x = 0;
     let offset_y = 0;
     if(offset){
@@ -272,8 +334,11 @@ function drawPoly(ctx, points, color, offset=null){
         y = offset_y + points[i][1];
         ctx.lineTo(x,y);
     }
-
-    ctx.fill();
+    if(fill){
+        ctx.fill();
+    }else{
+        ctx.stroke();
+    }
     ctx.closePath();
 }
 
@@ -313,6 +378,16 @@ window.onmousedown = function(e){
 }
 
 window.onmousemove = function(e){
+
+    if(canvas.width - e.x < 50 && canvas.height - e.y < 50){
+        this.document.body.style.cursor = 'pointer';
+        displayEnterSign = true;
+    }else{
+        this.document.body.style.cursor = '';
+        displayEnterSign = false;
+
+    }
+
     if(!mouseIsDown){return;}
     if(!draggingCirc){return;}
     e.preventDefault();
@@ -320,12 +395,14 @@ window.onmousemove = function(e){
     itx_x = e.x;
     itx_y = e.y;
 
+   
     // console.log(line.slope(), line.angle());
-    renderBackgroundCanvas();
+    //renderBackgroundCanvas();
 }
 
 function newCircle(){
     circle.initCoords(100,20);
+    celebrationStarted = false;
     renderBackgroundCanvas();
 }
 
