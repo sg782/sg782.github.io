@@ -33,6 +33,8 @@ class Circle {
     initCoords(x,y){
         this.x = x;
         this.y = y;
+        this.v =0;
+        this.vTheta = Math.PI / 2;
     }
 
     updateDirectionalV(dir,change, mode='update'){

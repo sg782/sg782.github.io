@@ -1,0 +1,23 @@
+body{
+    margin: 50px;
+    margin-left:15%;
+    margin-right:15%;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+}
+
+h3{
+    margin-top: 30px;
+}
+
+.post-body{
+    font-size: larger;
+    line-height: 1.5;
+    color: #000000CC;
+}
+
+.post-title{
+    font-weight: bold;
+    font-size: 30px;
+    padding-bottom: 20px;
+}

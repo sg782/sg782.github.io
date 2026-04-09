@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../css/post-format.css">
+
+    <script>
+        window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        }
+        };
+        </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js">
+    </script>
+
+    <title>Invertible</title>
+</head>
+<body>
+    <!-- <div class="post-title">Implicitly Trained Pseudo-Invertibility in Dense Nets</div> -->
+    <h1>Implicitly Trained Pseudo-Invertibility in Dense Nets</h1>
+
+
+
+
+    <div class="post-body">
+        <!-- In this article, I will introduce a simple method to retain an approximate inverse mapping in a dense feedforward neural network using only forward training. This writing follows closely to our <a href="">preprint</a>. -->
+        <sub>
+            I will introduce a simple method for approximating inverse mappings in dense architectures by maximizing information retention in downsampling/pooling layers, and provide insight for the stable training of such networks.
+            <br><br>
+            This writing follows closely to our <a href="">preprint</a>.    
+        </sub>
+        
+
+        <h3>Introduction</h3>
+
+        In general, invertible neural networks (INNs) do not allow for dimensionality reduction. However, some work has been done in this regard. 
+        Notably, Li et. al. <a href="#li-et-al">[1]</a> propose <i>inv-ML</i>, where they preserve invertibility through a series of equidimensional mappings, before applying a linear projection to a lower dimension in the final layer.
+        In our work, we investigate similar mappings $f: \mathbb{R}^n \to \mathbb{R}^m,\; n>m$. Here, an injective mapping cannot exist. This is a common scenario in many machine learning tasks such as classification and regression, as well as in contexts with a learned embedding space.
+        <br> <br>
+    
+        This article serves both as an introduction to this method, as well as empirical evidence showcasing strong invertibility in areas such as image compression and signal reconstruction. Our goal, however, is not to outperform generative models on perceptual quality, but to study training dynamics that preserve stable inverse mappings under forward-only optimization.
+        <br> <br>
+        I am partially motivated to post this article due to reaching somewhat of a roadblock, which I will elaborate on later in the reading. Also, this work contains no clever tricks nor mathematical proofs, just methods and results. It is in this regard that I would appreciate any input/criticisms.
+        <br> <br>
+              
+
+        <h3>General Architecture and Training</h3>
+        I will now spend a moment describing the method.
+        <br> <br>
+        Begin with a dense neural network $f$. We define its pseudo-inverse $f^\prime$ as the function obtained by reversing the order of layers in $f$ and replacing each layer with its functional inverse, both sharing the same parameters. 
+        <br><br>
+        In general, optimizing any $f$ over its cost function does not imply a meaningful mapping in $f^\prime$. It is here where we impose certain layer-wise constraints on $f$, such that a well trained model conforms to the structure enforced by the network's downsampling layers. 
+        We will show $f^\prime$ indirectly emerges from this constrained forward process without explicitly training or evaluating the inverse mapping.
+
+        <br><br>
+        An invertible layer in our approach consists of three core components.
+        <br>
+        <ol>
+            <li>
+                <b>Square Linear Transformation:</b> 
+                 A standard linear layer $y \gets Wx+b$, where $W\in M_{n \times n}(\mathbb{R})$ and $b\in \mathbb{R}^n$. Such transformations are trivially invertible with high numerical precision assuming det$(W)\neq0$ and the condition number $\kappa(W)$ is small. To ensure this, we impose a constraint on $\kappa(W)$ every $t$ training steps. We also initialize $W$ as $\mathbf{I}_n$ and $b$ as $\mathbf{0}_n$ for added stability during early training.
+            </li>
+            <br>
+            <li>
+                <b>Bijective Activation:</b>
+                Any activation function that is a bijection. For our work we use the Leaky ReLU activation [2].
+                <!-- should do auto cite numbers -->
+            </li>
+            <br>
+            <li>
+                <b>Pseudo-invertible Downsampling:</b>
+                 Our method utilizes downsampling as the primary means of dimensionality reduction. However, a mapping from $\mathbb{R}^n$ to $\mathbb{R}^m$ ($n>m$) generally results in significant information loss. 
+
+        To combat this, we model a downsampling layer as a pair of static complementary functions $(d: \mathbb{R}^n \to \mathbb{R}^m,u:\mathbb{R}^m \to \mathbb{R}^n )$, and a layer-wise reconstruction penalty $h(x,u(d(x)))$, such that a network trained to minimize $h$ encourages maximal retention of relevant information through this layer. Specific implementations of this framework are defined <a href=#inv-downsampling>later</a>.
+            </li>
+        </ol>
+
+
+        <h3 id="inv-downsampling">Invertible Downsampling</h3>
+        
+        
+    </div>
+
+
+
+    <div class="bibliography">
+        <h3>References</h3>
+
+        <ol>
+            <li id="li-et-al"> S. Li, H. Lin, Z. Zang, L. Wu, J. Xia, and S. Z. Li, “Invertible manifold learning for dimension reduction,” CoRR, vol. abs/2010.04012, 2020</li>
+            <li id="maas-et-al">A. L. Maas, A. Y. Hannun, and A. Y. Ng, “Rectifier nonlinearities improve neural network acoustic models,” in Proceedings of the 30th International Conference on Machine Learning (ICML), (Atlanta, GA, USA), p. 3, June 16–21 2013.</li>
+        </ol>
+
+
+    </div>
+</body>
+</html>
