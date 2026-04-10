@@ -30,7 +30,7 @@
         <sub>
             I will introduce a simple method for approximating inverse mappings in dense architectures by maximizing information retention in downsampling/pooling layers, and provide insight for the stable training of such networks.
             <br><br>
-            This writing follows closely to our <a href="">preprint</a>.    
+            This writing follows closely to our <a href="https://www.youtube.com/watch?v=81eXWi6t_wI">preprint</a>.    
         </sub>
         
 
@@ -66,7 +66,7 @@
             <br>
             <li>
                 <b>Bijective Activation:</b>
-                Any activation function that is a bijection. For our work we use the Leaky ReLU activation [2].
+                Any activation function that is a bijection. For our work we use the Leaky ReLU activation <a href="#maas-et-al">[2]</a>.
                 <!-- should do auto cite numbers -->
             </li>
             <br>
@@ -74,14 +74,32 @@
                 <b>Pseudo-invertible Downsampling:</b>
                  Our method utilizes downsampling as the primary means of dimensionality reduction. However, a mapping from $\mathbb{R}^n$ to $\mathbb{R}^m$ ($n>m$) generally results in significant information loss. 
 
-        To combat this, we model a downsampling layer as a pair of static complementary functions $(d: \mathbb{R}^n \to \mathbb{R}^m,u:\mathbb{R}^m \to \mathbb{R}^n )$, and a layer-wise reconstruction penalty $h(x,u(d(x)))$, such that a network trained to minimize $h$ encourages maximal retention of relevant information through this layer. Specific implementations of this framework are defined <a href=#inv-downsampling>later</a>.
+                To combat this, we model a downsampling layer as a pair of static complementary functions $(d: \mathbb{R}^n \to \mathbb{R}^m,u:\mathbb{R}^m \to \mathbb{R}^n )$, and a layer-wise reconstruction penalty $h(x,u(d(x)))$, 
+                such that a network trained to minimize $h$ encourages maximal retention of relevant information through this layer. Specific implementations of this framework are defined <a href=#inv-downsampling>later</a>.
             </li>
         </ol>
 
+        $f$ may be composed of multiple of these layers. The full loss function with $n$ downsampling layers, parameters $\pi$, and input $x$ is as follows:
+
+        \begin{equation}
+        \begin{aligned}
+        \quad & \mathcal{L}(\pi;x) = g_{\pi}(x) + \lambda\sum_{i=1}^{n} Err(x_i) \\
+        \text{where} & \quad Err(x_i) =  h_i(x_i,u_i(d_i(x_{i}))), \\
+        \end{aligned}
+        \label{full_loss}
+        \end{equation}
+        <div style="margin-left: 5vh; margin-right: 5vh;">$g_\pi(x)$ is the primary cost function for $f$., $x_i$ is the transformed input signal to the $i^{\text{th}}$ pooling layer, and $\lambda$ is a tunable hyperparameter.</div>
+
 
         <h3 id="inv-downsampling">Invertible Downsampling</h3>
-        
-        
+        Our method assumes numerically stable invertibility in all dense layers and activations functions. With minor weight regularization, this is easily achieved. 
+        Therefore, the majority of our work focuses on developing methods to coerce the network as a whole to preserve information through downsampling layers.
+        <br><br>
+        Recall that an invertible downsampling layer is defined using two complementary functions: a downsampling function $d: \mathbb{R}^n \to \mathbb{R}^m$ and an upsampling function $u:\mathbb{R}^m \to \mathbb{R}^n$, where $n>m$. $d$ and $u$ also have a corresponding reconstruction penalty $h(x,u(d(x)))$. 
+        <br><br>
+        Note that $d$ and $u$ are static functions, and are not trained. They are also not each other's true inverse. Invertibility emerges instead from optimizing over $h$, leading the network to learn a transformation of the input signal into one that is conducive to each specific invertible invertible layer.
+        <br><br>
+        Perhaps it may be useful to list some function pairs for $d$ and $u$ that have shown empirical success 
     </div>
 
 
