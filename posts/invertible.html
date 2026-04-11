@@ -41,7 +41,7 @@
         In our work, we investigate similar mappings $f: \mathbb{R}^n \to \mathbb{R}^m,\; n>m$. Here, an injective mapping cannot exist. This is a common scenario in many machine learning tasks such as classification and regression, as well as in contexts with a learned embedding space.
         <br> <br>
     
-        This article serves both as an introduction to this method, as well as empirical evidence showcasing strong invertibility in areas such as image compression and signal reconstruction. Our goal, however, is not to outperform generative models on perceptual quality, but to study training dynamics that preserve stable inverse mappings under forward-only optimization.
+        This article serves both as an introduction to this method, as well as empirical evidence showcasing strong invertibility in areas such as image compression and signal reconstruction. My goal, however, is not to outperform generative models, but to study training dynamics that preserve stable inverse mappings under forward-only optimization.
         <br> <br>
         I am partially motivated to post this article due to reaching somewhat of a roadblock, which I will elaborate on later in the reading. Also, this work contains no clever tricks nor mathematical proofs, just methods and results. It is in this regard that I would appreciate any input/criticisms.
         <br> <br>
@@ -52,16 +52,17 @@
         <br> <br>
         Begin with a dense neural network $f$. We define its pseudo-inverse $f^\prime$ as the function obtained by reversing the order of layers in $f$ and replacing each layer with its functional inverse, both sharing the same parameters. 
         <br><br>
-        In general, optimizing any $f$ over its cost function does not imply a meaningful mapping in $f^\prime$. It is here where we impose certain layer-wise constraints on $f$, such that a well trained model conforms to the structure enforced by the network's downsampling layers. 
+        In general, optimizing any $f$ over its cost function does not imply a meaningful mapping in $f^\prime$. It is here where we impose certain layer-wise constraints on $f$, such that in training it conforms to the structure enforced by the its downsampling layers. 
         We will show $f^\prime$ indirectly emerges from this constrained forward process without explicitly training or evaluating the inverse mapping.
-
+        <br><br>
+        At a high level, consider these training constraints as guidelines to coax each layer in $f$ to be a learned invertible projection.
         <br><br>
         An invertible layer in our approach consists of three core components.
         <br>
         <ol>
             <li>
                 <b>Square Linear Transformation:</b> 
-                 A standard linear layer $y \gets Wx+b$, where $W\in M_{n \times n}(\mathbb{R})$ and $b\in \mathbb{R}^n$. Such transformations are trivially invertible with high numerical precision assuming det$(W)\neq0$ and the condition number $\kappa(W)$ is small. To ensure this, we impose a constraint on $\kappa(W)$ every $t$ training steps. We also initialize $W$ as $\mathbf{I}_n$ and $b$ as $\mathbf{0}_n$ for added stability during early training.
+                 A standard linear layer $y \gets Wx+b$, where $W\in M_{n \times n}(\mathbb{R})$ and $b\in \mathbb{R}^n$. Such transformations are trivially invertible with high numerical precision assuming det$(W)\neq0$ and the condition number $\kappa(W)$ is reasonably small. To ensure this, we impose a constraint on $\kappa(W)$ every $t$ training steps. We also initialize $W$ as $\mathbf{I}_n$ and $b$ as $\mathbf{0}_n$ for added stability during early training.
             </li>
             <br>
             <li>
@@ -99,7 +100,76 @@
         <br><br>
         Note that $d$ and $u$ are static functions, and are not trained. They are also not each other's true inverse. Invertibility emerges instead from optimizing over $h$, leading the network to learn a transformation of the input signal into one that is conducive to each specific invertible invertible layer.
         <br><br>
-        Perhaps it may be useful to list some function pairs for $d$ and $u$ that have shown empirical success 
+        Perhaps it may be useful to list some function pairs for $d$ and $u$ that have shown empirical success:
+
+        <ol>
+            <li>
+                <b>Average Pooling: </b>
+                Average Pooling provides a stable method for local aggregation, where we apply a kernel size $k$ over disjoint, non-overlapping $k\times1$ blocks. This function compresses the signal by a factor of $k$, from $\mathbb{R}^n$ to $\mathbb{R}^{\frac{n}{k}}$ where $k$ divides $n$.
+                <br>For upsampling, we replicate each pooled value in $\mathbb{R}^{\frac{n}{k}}$ over its original spatial support in $\mathbb{R}^n$. 
+                We also tested minimum and maximum pooling kernels, which produce similar results, but take significantly longer to converge.
+            </li>
+
+            <li>
+                <b>Frequency-based Downsampling: </b>
+                In domains with strong low-frequency structure, it is especially effective to use frequency based downsampling.
+                Let $C =[c_0,c_1,...,c_{n-1}]$ be the DCT coefficients for an input in $\mathbb{R}^n$. Here, we simply take the first $m$ low-frequency coefficients. For upsampling, we choose minimum energy reconstruction, by imposing the DCT vector in $\mathbb{R}^m$ on the zero vector of dimension $n$ in the frequency domain.
+            </li>
+
+            <li>
+                <b>Subsampling: </b>
+                Another very simple method is to subsample the first $m$ values from the original input vector in $\mathbb{R}^n$. This is most useful when the input and output dimensions are similar in magnitude. We upsample by embedding the vector into $\mathbb{R}^n$ with zero padding.
+            </li>
+
+        </ol>
+        The previously listed function pairs can also be easily extended to higher dimensions. For example, an image-based task may be best suited with a two-dimensional kernel.
+        <br><br>
+        In all experiments, our reconstruction penalty $h$ is the Mean Square Error between the input signal $x$ and the resampled signal $u(d(x))$. 
+        In truth, I chose this function due to its simplicity. I will leave investigating other functions as future work.
+
+        <h3>Issues</h3>
+        At least two problems exist in this approach, both of which I believe come from my overall naivety in regards to coming up with novel ideas.
+        <br><br>
+        First, and most importantly, it is quite difficult for $f^\prime$ to converge if $f$ is more than two to three layers deep. This can obviously be attributed to accumulated error from each lossy downsampling function.
+        Below I list three techniques that seem to alleviate at least some of this error:
+        <ol>
+            <li>
+                <b>Batch Normalization: </b>
+                A natural method to improve stability in training is batch normalization <a href="#ioffe-szegedy">[3]</a>. 
+                This is expecially useful for networks with frequency-based downsampling, as truncating higher-frequency signals can induce large fluctuations in the signal domain.
+                <br><br>
+                Inverting the batch-norm transformation is simple. We have
+
+                \begin{equation}
+                \label{eq:inv_bn}
+                    x = \frac{(y - \beta)\sqrt{\sigma^2 + \epsilon}}{\gamma} + \mu, \qquad \gamma \neq 0
+                \end{equation}
+
+                where \(\gamma, \beta\) are learned affine parameters and
+                \(\mu, \sigma^2\) denote the mini-batch statistics.
+
+                Using the standard batch normalization method for forward inference and applying the above at the inverse enables more stable signal propagation throughout the network.
+            </li>
+            <li>
+                <b>Random Noise: </b>
+                Random noise improves generalization throughout the network. This also appears to encourage stronger continuity in the latent space.
+            </li>
+            <li>
+                <b>Signal Quantization:</b>
+                Applying uniform quantization immediately before or after a downsampling layer helps mitigate accumulated error. It is best to apply quantization for both the forward and inverse pass.
+                Note that quantization is inherently non-differentiable, so we employ straight-through gradient estimation at quantization layers.
+            </li>
+        </ol>
+        <br><br>
+        The second problem I have encountered is computational constraints. Although the proposed method does not invert weight matrices during training, it is still necessary to calculate the condition $\kappa$. This calculation is of subpar order $O(n^3)$.
+        This bottleneck has not caused me much trouble, so I have yet to research optimizations deeply. Some improvement may be found <a href="https://www.cs.umd.edu/users/oleary/reprints/j07.pdf">here</a>.
+
+        <br><br>
+        A third issue in this method may be a lack of practical application. That is ok.
+
+
+        <h3>Some Results</h3>
+        under construction ...
     </div>
 
 
@@ -110,6 +180,7 @@
         <ol>
             <li id="li-et-al"> S. Li, H. Lin, Z. Zang, L. Wu, J. Xia, and S. Z. Li, “Invertible manifold learning for dimension reduction,” CoRR, vol. abs/2010.04012, 2020</li>
             <li id="maas-et-al">A. L. Maas, A. Y. Hannun, and A. Y. Ng, “Rectifier nonlinearities improve neural network acoustic models,” in Proceedings of the 30th International Conference on Machine Learning (ICML), (Atlanta, GA, USA), p. 3, June 16–21 2013.</li>
+            <li id="ioffe-szegedy">S. Ioffe and C. Szegedy, “Batch normalization: Accelerating deep network training by reducing internal covariate shift,” 2015.</li>
         </ol>
 
 
