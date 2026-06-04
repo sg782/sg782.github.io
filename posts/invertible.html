@@ -80,16 +80,17 @@
             </li>
         </ol>
 
+        <div id="general-formula"></div>
         $f$ may be composed of multiple of these layers. The full loss function with $n$ downsampling layers, parameters $\pi$, and input $x$ is as follows:
 
         \begin{equation}
         \begin{aligned}
-        \quad & \mathcal{L}(\pi;x) = g_{\pi}(x) + \lambda\sum_{i=1}^{n} Err(x_i) \\
+        \quad & \mathcal{L}(\pi;x) = \alpha \cdot g_{\pi}(x) + \lambda\sum_{i=1}^{n} Err(x_i) + \gamma \cdot \kappa(\pi)\\
         \text{where} & \quad Err(x_i) =  h_i(x_i,u_i(d_i(x_{i}))), \\
         \end{aligned}
         \label{full_loss}
         \end{equation}
-        <div style="margin-left: 5vh; margin-right: 5vh;">$g_\pi(x)$ is the primary cost function for $f$., $x_i$ is the transformed input signal to the $i^{\text{th}}$ pooling layer, and $\lambda$ is a tunable hyperparameter.</div>
+        <div style="margin-left: 5vh; margin-right: 5vh;">$g_\pi(x)$ is the primary cost function for $f$., $x_i$ is the transformed input signal to the $i^{\text{th}}$ pooling layer, and $\alpha$, $\lambda$, and $\gamma$ are tunable hyperparameters.</div>
 
 
         <h3 id="inv-downsampling">Invertible Downsampling</h3>
@@ -164,12 +165,65 @@
         The second problem I have encountered is computational constraints. Although the proposed method does not invert weight matrices during training, it is still necessary to calculate the condition $\kappa$. This calculation is of subpar order $O(n^3)$.
         This bottleneck has not caused me much trouble, so I have yet to research optimizations deeply. Some improvement may be found <a href="https://www.cs.umd.edu/users/oleary/reprints/j07.pdf">here</a>.
 
+        <!-- <br><br>
+        A third issue in this method may be a lack of practical application. That is ok. -->
+
+
+        <h3>Proof-of-Concept Results</h3>
+        I will begin with an example model trained on the Fashion-MNIST <a href="#fashion-mnist">[4]</a>.
+
+        This model is extremely small, only containing three trainable layers. Specifically:
+        <br>
+
+        <div id="model-layers">
+            \begin{array} {|r|r|}\hline \textbf{Layer} 
+            & \textbf{Trainable} & \textbf{Invertible} \\ \hline 
+                \text{Linear(784,784)} & \text{Yes} & \text{Yes} \\ \hline 
+                \text{LeakyReLU(}\alpha=0.1\text{)} & \text{No} & \text{Yes} \\ \hline 
+                \text{LinearUpDownSample} & \text{No} & \text{Yes} \\ \hline 
+                \text{BatchNorm} & \text{No} & \text{Yes} \\ \hline 
+                \text{Linear(49,49)} & \text{Yes} & \text{Yes} \\ \hline 
+                \text{LeakyReLU(}\alpha=0.1\text{)} & \text{No} & \text{Yes} \\ \hline  
+                \text{Classifier(49,10)} & \text{Yes} & \text{No} \\ \hline  
+            \end{array}
+        <br>
+
+        This model uses the Adam Optimizer <a href="#adam">[5]</a> with a learning rate of 0.05. 
+        Hyper parameters $\alpha$, $\lambda$, and $\gamma$ (defined <a href="#general-formula">here</a>) are $0.05$, $0.6$, and $0.01$, respectively.
+        <br>
+        These weightings are roughly tuned to produce basic results. I am confident it is not optimal.
+
+
         <br><br>
-        A third issue in this method may be a lack of practical application. That is ok.
+        This model uses DCT for $16\times$ downsampling from $\mathbb{R}^{784}$ to $\mathbb{R}^{49}$. In this example, the final projection to $\mathbb{R}^{10}$ is not invertible.
+        The results shown are from ~50 epochs (30s wall clock).
+        <br>
+        </div>
+
+        <figure id="fig1" style="padding: 10px;">
+            <img class="responsive-img" src="../imgs/example_output.png">            
+            <figcaption style="color: #979797; font-size: small;">Fig 1. Pairs of input images (left) and their reconstructions (right)</figcaption>
+        </figure>
+
+        Figure 1 shows eight input images and their reconstructions using the forward-reverse process described earlier on the above model. 
+        Although never training the inverse pass from the 49-dimensional latent layer, the inverse pass of the model preserves much of the structure of the input images.   
+        <br>
+        Allow me to share some graphs for a greater intuition.
+           
+
+        </div>
+
+        <figure id="fig2" style="padding: 10px;">
+            <img class="responsive-img" src="../imgs/results_plots.png">            
+            <figcaption style="color: #979797; font-size: small;">Fig 2. Training curves of Activations, Reconstruction Loss, and Accuracy.</figcaption>
+        </figure>
 
 
-        <h3>Some Results</h3>
-        under construction ...
+
+
+        
+        
+        
     </div>
 
 
@@ -181,6 +235,9 @@
             <li id="li-et-al"> S. Li, H. Lin, Z. Zang, L. Wu, J. Xia, and S. Z. Li, “Invertible manifold learning for dimension reduction,” CoRR, vol. abs/2010.04012, 2020</li>
             <li id="maas-et-al">A. L. Maas, A. Y. Hannun, and A. Y. Ng, “Rectifier nonlinearities improve neural network acoustic models,” in Proceedings of the 30th International Conference on Machine Learning (ICML), (Atlanta, GA, USA), p. 3, June 16–21 2013.</li>
             <li id="ioffe-szegedy">S. Ioffe and C. Szegedy, “Batch normalization: Accelerating deep network training by reducing internal covariate shift,” 2015.</li>
+            <li id="fashion-mnist">Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms. Han Xiao, Kashif Rasul, Roland Vollgraf. arXiv:1708.07747</li>
+            <li id="adam">Kingma, D. P., & Ba, J. (2014). Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980.</li>
+
         </ol>
 
 
