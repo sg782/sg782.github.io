@@ -75,7 +75,7 @@
                 <b>Pseudo-invertible Downsampling:</b>
                  Our method utilizes downsampling as the primary means of dimensionality reduction. However, a mapping from $\mathbb{R}^n$ to $\mathbb{R}^m$ ($n>m$) generally results in significant information loss. 
 
-                To combat this, we model a downsampling layer as a pair of static complementary functions $(d: \mathbb{R}^n \to \mathbb{R}^m,u:\mathbb{R}^m \to \mathbb{R}^n )$, and a layer-wise reconstruction penalty $h(x,u(d(x)))$, 
+                To combat this, we model a downsampling layer as a pair of static complementary functions $(d: \mathbb{R}^n \to \mathbb{R}^m,u:\mathbb{R}^m \to \mathbb{R}^n )$, and a layer-wise activation penalty $h(x,u(d(x)))$, 
                 such that a network trained to minimize $h$ encourages maximal retention of relevant information through this layer. Specific implementations of this framework are defined <a href=#inv-downsampling>later</a>.
             </li>
         </ol>
@@ -97,7 +97,7 @@
         Our method assumes numerically stable invertibility in all dense layers and activations functions. With minor weight regularization, this is easily achieved. 
         Therefore, the majority of our work focuses on developing methods to coerce the network as a whole to preserve information through downsampling layers.
         <br><br>
-        Recall that an invertible downsampling layer is defined using two complementary functions: a downsampling function $d: \mathbb{R}^n \to \mathbb{R}^m$ and an upsampling function $u:\mathbb{R}^m \to \mathbb{R}^n$, where $n>m$. $d$ and $u$ also have a corresponding reconstruction penalty $h(x,u(d(x)))$. 
+        Recall that an invertible downsampling layer is defined using two complementary functions: a downsampling function $d: \mathbb{R}^n \to \mathbb{R}^m$ and an upsampling function $u:\mathbb{R}^m \to \mathbb{R}^n$, where $n>m$. $d$ and $u$ also have a corresponding activation penalty $h(x,u(d(x)))$. 
         <br><br>
         Note that $d$ and $u$ are static functions, and are not trained. They are also not each other's true inverse. Invertibility emerges instead from optimizing over $h$, leading the network to learn a transformation of the input signal into one that is conducive to each specific invertible invertible layer.
         <br><br>
@@ -125,7 +125,7 @@
         </ol>
         The previously listed function pairs can also be easily extended to higher dimensions. For example, an image-based task may be best suited with a two-dimensional kernel.
         <br><br>
-        In all experiments, our reconstruction penalty $h$ is the Mean Square Error between the input signal $x$ and the resampled signal $u(d(x))$. 
+        In all experiments, our activation penalty $h$ is the Mean Square Error between the input signal $x$ and the resampled signal $u(d(x))$. 
         In truth, I chose this function due to its simplicity. I will leave investigating other functions as future work.
 
         <h3>Issues</h3>
@@ -211,18 +211,27 @@
         Allow me to share some graphs for a greater intuition.
            
 
-        </div>
 
-        <figure id="fig2" style="padding: 10px;">
+         <figure id="fig2" style="padding: 10px;">
             <img class="responsive-img" src="../imgs/results_plots.png">            
-            <figcaption style="color: #979797; font-size: small;">Fig 2. Training curves of Activations, Reconstruction Loss, and Accuracy.</figcaption>
+            <figcaption style="color: #979797; font-size: small;">Fig 2. Training curves of Activations, Reconstruction Loss, and Accuracy. To clarity my poorly designed graph, I optimize for the left and right figures, while the center is a dependent output.</figcaption>
         </figure>
 
+        
+        The model is uninterestingly trained to maximize accuracy (right). This is hindered somewhat by the secondary activation penalty (aka $\Sigma Err(x_i)$). 
+        However, notice visually the coorelation between the activation penalty curve(left) and reconstruction loss (center).
 
-
+        Lower activation loss (somewhat intuitively) trends with higher quality inverse reconstruction.
 
         
+        <h3>Next</h3>
+        Next time I have a 2+ nights in a row free of all superceding responsibilities, I'd like to look further into improving all aspects of this approach.
+        I do not believe this will grow into a solution for inverse modeling, but I am interested to study constrained training further to train models With
+        overlapping tensor weights for high density storage. Or maybe something else.
         
+        </div>
+
+       
         
     </div>
 
