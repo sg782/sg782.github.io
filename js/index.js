@@ -6,11 +6,17 @@
     */
 
     let posts = {
+        "invertible-motivation": {
+            title: "Explicit Training for Invertible Nets",
+            href: "posts/invertible-motivation.html",
+            description: "Numerical motivation for invertible work.",
+            published: "July 2026"
+        },
         "invertible": {
             title: "Implicitly Trained Pseudo-Invertibility in Dense Nets",
             href: "posts/invertible.html",
             description: "A simple approach to signal reconstruction using only forward training.",
-            published: "April 2026"
+            published: "July 2026"
         }
     }
 
