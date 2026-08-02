@@ -30,7 +30,7 @@
     </div>
 
     <h3>Introduction</h3>
-    Consider a simple experiment of a classifier over the MNIST digits dataset. During training, can such a model with layer weights $W_{ \{ 0...i\}}$ be coerced such that the transformations can be reversed using weights $W^{-1}_{ \{ 0...i\}}$, applied in reverse order?
+    Consider a simple experiment of a classifier over the MNIST digits dataset. During training, can such a model with square layer weights $W_{ \{ 0...i\}}$ be coerced such that the transformations can be reversed using weights $W^{-1}_{ \{ 0...i\}}$, applied in reverse order?
     <br><br>
     Naturally, the answer is yes, at least for this simple data. A small proof of concept with very light training already achieve the results shown below quite quickly with >95% classification accuracy.
     <br>
@@ -50,6 +50,22 @@
     
     </code>
     </pre> -->
+
+    <h3>Training Flow</h3>
+
+    Figure two outlines the method in greater detail. Input is first sent through the layers of the network. The network is then reversed and all weights inverted. The transformed input is then 'de-transformed' in this backwards order.
+    The transformed input is also sent to a final classification layer.
+
+    The training loss is calculated as a weighted sum of a given reconstruction loss over the input and output, and the model's classification accuracy.
+
+    <br><br>
+
+    <figure id="fig1" style="padding: 10px;">
+        <img class="responsive-img" src="../imgs/explicit_inv.png">            
+        <figcaption style="color: #979797; font-size: small;">Fig 2. Flow-chart of model training. I apologize for using dehydration colors.</figcaption>
+    </figure>
+
+    
 
 
     <h3>Continuation</h3>
