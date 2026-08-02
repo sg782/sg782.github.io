@@ -29,13 +29,39 @@
         </sub>
     </div>
 
-    @todo 
+    <h3>Introduction</h3>
+    Consider a simple experiment of a classifier over the MNIST digits dataset. During training, can such a model with layer weights $W_{ \{ 0...i\}}$ be coerced such that the transformations can be reversed using weights $W^{-1}_{ \{ 0...i\}}$, applied in reverse order?
+    <br><br>
+    Naturally, the answer is yes, at least for this simple data. A small proof of concept with very light training already achieve the results shown below quite quickly with >95% classification accuracy.
+    <br>
 
-    1. describe method
-    2. sudocode
-    3. show that it works
-    4. set a numerical bound
-    5. dip
+    <figure id="fig1" style="padding: 10px;">
+        <img class="responsive-img" src="../imgs/explicit_output_cropped.png">            
+        <figcaption style="color: #979797; font-size: small;">Fig 1. Pairs of input images (left) and their reconstructions (right)</figcaption>
+    </figure>
+
+    <br>
+<!-- 
+    <pre class="code-block"><code>
+    class Model:
+        self.weights = [W1, W2, ..., W_i]
+
+        Future spot for a diagram,be sure to mention explicit recon training
+    
+    </code>
+    </pre> -->
+
+
+    <h3>Continuation</h3>
+    These results imply a model's weights can be trained to serve two purposes (classification and generation). Leading me to two immediate questions.
+    <br>
+    <ol>
+        <li>Can this invertible property be recreated without expressly training the model in both directions? </li>
+        <li>How many operations can exist in one set of trained weights, and what does it imply for model storage and 'tensor packing'?</li>
+    </ol>
+
+    <br>
+    I will document my findings as I continue investigation in my free time.
 
 
 
