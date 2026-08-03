@@ -1,0 +1,70 @@
+.mjx-chtml, .MathJax_Display, .MathJax {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+#headshot{
+    height: 50vh;
+}
+#contact-text{
+    margin: 10px;
+}
+
+.mobile-only{
+    display:none;
+}
+
+.desktop-only{
+    display:flex; 
+}
+
+@media screen and (min-width: 0px) and (max-width: 767px) {
+  body{
+    padding-top: 5vh;
+    margin: 5px;
+    margin-left:5%;
+    margin-right:5%;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+    }
+
+    h1{
+        font-size: x-large;
+    }
+
+    .post-body{
+        font-size: initial ;
+        line-height: 1.5;
+        color: #000000CC;
+    }
+
+    #headshot{
+        height: 25vh;
+        display: block;
+        margin: auto;
+        width: 50%;
+    }
+
+    
+
+    .responsive-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    }
+
+    figure{
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+
+    }
+
+    .mobile-only{
+        display:block;
+    }
+
+    .desktop-only{
+        display: none;
+    }
+}
