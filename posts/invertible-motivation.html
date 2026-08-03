@@ -27,58 +27,59 @@
             <br><br>
             <!-- This writing follows closely to our <a href="https://www.youtube.com/watch?v=81eXWi6t_wI">preprint</a>.     -->
         </sub>
+    
+
+        <h3>Introduction</h3>
+        Consider a simple experiment of a classifier over the MNIST digits dataset. During training, can a transformation with square layer weights $W_{ \{ 0...i\}}$ be reversed using $W^{-1}_{ \{ 0...i\}}$, applied in reverse order?
+        <br><br>
+        Naturally, the answer is yes, at least for this simple data. A small proof of concept with very light training already achieve the results shown below quite quickly with >95% classification accuracy.
+        <br>
+
+        <figure id="fig1" style="padding: 10px;">
+            <img class="responsive-img" src="../imgs/explicit_output_cropped.png">            
+            <figcaption style="color: #979797; font-size: small;">Fig 1. Pairs of input images (left) and their reconstructions (right)</figcaption>
+        </figure>
+
+        <br>
+    <!-- 
+        <pre class="code-block"><code>
+        class Model:
+            self.weights = [W1, W2, ..., W_i]
+
+            Future spot for a diagram,be sure to mention explicit recon training
+        
+        </code>
+        </pre> -->
+
+        <h3>Training Flow</h3>
+
+        Figure 2 outlines the method in greater detail. Input is first sent through the layers of the network. The network is then reversed and all weights inverted. 
+        The transformed input is finally 'de-transformed' in this backwards order to regenerate the input.
+        The transformed input is also sent to a final classification layer.
+        <br><br>
+        The training loss is calculated as a weighted sum of a given reconstruction loss over the input and output, and the model's classification accuracy.
+
+        <br><br>
+
+        <figure id="fig2" style="padding: 10px;">
+            <img class="responsive-img" src="../imgs/explicit_inv.png">            
+            <figcaption style="color: #979797; font-size: small;">Fig 2. Flow-chart of model training. I apologize for using dehydration colors.</figcaption>
+        </figure>
+
+        
+
+
+        <h3>Continuation</h3>
+        These results imply a model's weights can be trained to serve two purposes (classification and generation). Leading me to two immediate questions.
+        <br>
+        <ol>
+            <li>Can this invertible property be recreated without expressly training the model in both directions? </li>
+            <li>How many operations can exist in one set of trained weights, and what does it imply for model storage and 'tensor packing'?</li>
+        </ol>
+
+        <br>
+        I will document my findings as I continue investigation in my free time.
+
     </div>
-
-    <h3>Introduction</h3>
-    Consider a simple experiment of a classifier over the MNIST digits dataset. During training, can such a model with square layer weights $W_{ \{ 0...i\}}$ be coerced such that the transformations can be reversed using weights $W^{-1}_{ \{ 0...i\}}$, applied in reverse order?
-    <br><br>
-    Naturally, the answer is yes, at least for this simple data. A small proof of concept with very light training already achieve the results shown below quite quickly with >95% classification accuracy.
-    <br>
-
-    <figure id="fig1" style="padding: 10px;">
-        <img class="responsive-img" src="../imgs/explicit_output_cropped.png">            
-        <figcaption style="color: #979797; font-size: small;">Fig 1. Pairs of input images (left) and their reconstructions (right)</figcaption>
-    </figure>
-
-    <br>
-<!-- 
-    <pre class="code-block"><code>
-    class Model:
-        self.weights = [W1, W2, ..., W_i]
-
-        Future spot for a diagram,be sure to mention explicit recon training
-    
-    </code>
-    </pre> -->
-
-    <h3>Training Flow</h3>
-
-    Figure two outlines the method in greater detail. Input is first sent through the layers of the network. The network is then reversed and all weights inverted. The transformed input is then 'de-transformed' in this backwards order.
-    The transformed input is also sent to a final classification layer.
-
-    The training loss is calculated as a weighted sum of a given reconstruction loss over the input and output, and the model's classification accuracy.
-
-    <br><br>
-
-    <figure id="fig1" style="padding: 10px;">
-        <img class="responsive-img" src="../imgs/explicit_inv.png">            
-        <figcaption style="color: #979797; font-size: small;">Fig 2. Flow-chart of model training. I apologize for using dehydration colors.</figcaption>
-    </figure>
-
-    
-
-
-    <h3>Continuation</h3>
-    These results imply a model's weights can be trained to serve two purposes (classification and generation). Leading me to two immediate questions.
-    <br>
-    <ol>
-        <li>Can this invertible property be recreated without expressly training the model in both directions? </li>
-        <li>How many operations can exist in one set of trained weights, and what does it imply for model storage and 'tensor packing'?</li>
-    </ol>
-
-    <br>
-    I will document my findings as I continue investigation in my free time.
-
-
 
     </body>
