@@ -94,7 +94,12 @@
         \label{full_loss}
         \end{equation}
         <div style="margin-left: 5vh; margin-right: 5vh;">$g_\pi(x)$ is the primary cost function for $f$., $x_i$ is the transformed input signal to the $i^{\text{th}}$ pooling layer, and $\alpha$, $\lambda$, and $\gamma$ are tunable hyperparameters.</div>
-
+        <br><br>
+        I provide a flow chart (of which I am very proud of) describing the method visually.
+        <figure id="fig-implicit-flow" style="padding: 10px;">
+            <img class="responsive-img" src="../imgs/implicit-inverse-I-full.png">            
+            <figcaption style="color: #979797; font-size: small;">Fig 1. Training and Generation Flow.</figcaption>
+        </figure>
 
         <h3 id="inv-downsampling">Invertible Downsampling</h3>
         Our method assumes numerically stable invertibility in all dense layers and activations functions. With minor weight regularization, this is easily achieved. 
@@ -205,7 +210,7 @@
 
         <figure id="fig1" style="padding: 10px;">
             <img class="responsive-img" src="../imgs/example_output.png">            
-            <figcaption style="color: #979797; font-size: small;">Fig 1. Pairs of input images (left) and their reconstructions (right)</figcaption>
+            <figcaption style="color: #979797; font-size: small;">Fig 2. Pairs of input images (left) and their reconstructions (right)</figcaption>
         </figure>
 
         Figure 1 shows eight input images and their reconstructions using the forward-reverse process described earlier on the above model. 
@@ -217,7 +222,7 @@
 
          <figure id="fig2" style="padding: 10px;">
             <img class="responsive-img" src="../imgs/results_plots.png">            
-            <figcaption style="color: #979797; font-size: small;">Fig 2. Training curves of Activations, Reconstruction Loss, and Accuracy. To clarity my poorly designed graph, I optimize for the left and right figures, while the center is a dependent output.</figcaption>
+            <figcaption style="color: #979797; font-size: small;">Fig 3. Training curves of Activations, Reconstruction Loss, and Accuracy. To clarity my poorly designed graph, I optimize for the left and right figures, while the center is a dependent output.</figcaption>
         </figure>
 
         
