@@ -1,0 +1,17 @@
+
+body{
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+
+    font-family: "Dela Gothic One", sans-serif;
+
+    background-color: white;
+    color: #171717; 
+}
+
+p{
+    letter-spacing: 0.02rem;
+    font-family: "inter";
+}
+
