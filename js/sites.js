@@ -4,7 +4,7 @@
 let sites = {
     "intervle": {
         title: "Intervle",
-        thumbnail: "",
+        thumbnail: "imgs/intervle_thumb.png",
         href: "https://intervle.net",
         description: "Daily ear training game.",
         published: "May 2026"
@@ -58,14 +58,14 @@ function linkCard(obj){
     let img = document.createElement("img");
     img.style.height="8vh";
     img.style.aspectRatio="1/1";
-    img.src="imgs/explicit_inv.png"
+    img.src= obj.thumbnail
 
 
     let title = document.createElement("span");
     title.innerText = obj.title
     // title.style.fontWeight = "bold";
     title.style.margin = "2px";
-    title.style.fontSize = "large";
+    title.style.fontSize = "larger";
 
     let date = document.createElement("span");
     date.innerText = obj.published
@@ -74,6 +74,7 @@ function linkCard(obj){
     date.style.margin = "2px";
 
     let desc = document.createElement("p");
+    desc.fontSize = "large";
     desc.innerText = obj.description;
     desc.style.color="#898989";
 
